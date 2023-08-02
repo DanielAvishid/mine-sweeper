@@ -1,0 +1,27 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+h1 {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 40px;
+}
+
+table {
+    margin: auto;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    background-color: gray;
+}
+
+footer {
+    margin: auto;
+    margin-top: 40px;
+    text-align: center;
+}
