@@ -12,6 +12,8 @@ var gLivesCount
 var gIsHint
 var gElHintBtn
 var gSafeClicks
+var gUndoSteps = []
+var gStepCounter
 
 var gLevel = {
     SIZE: 4,
@@ -25,7 +27,34 @@ var gGame = {
     secsPassed: 0
 }
 
+function undoOnClick(elBtn) {
+    gBoard = gUndoSteps[gStepCounter - 1]
+    renderBoard(gUndoSteps[gStepCounter - 1])
+    gUndoSteps.splice(gStepCounter - 1, 1)
+    gStepCounter--
+    console.log(gStepCounter)
+}
+
+function addUndoStep(board) {
+    var undoStep = [];
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        undoStep[i] = [];
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            undoStep[i][j] = {
+                minesAroundCount: board[i][j].minesAroundCount,
+                isShown: board[i][j].isShown,
+                isMine: board[i][j].isMine,
+                isMarked: board[i][j].isMarked
+            }
+        }
+    }
+    gUndoSteps.push(undoStep)
+    console.log(gUndoSteps)
+    return undoStep
+}
+
 function onInit() {
+    gStepCounter = 0
     gIsHint = false
     gGame.isOn = true
     gClick = 0
@@ -130,6 +159,10 @@ function renderBoard(board) {
 }
 
 function onCellClicked(elCell, i, j) {
+    if (gStepCounter === 0) onInit()
+    if (gClick === 1) gClick = 2
+    addUndoStep(gBoard)
+    gStepCounter++
     if (gIsHint) {
         revealForSec(gBoard, i, j)
         setTimeout(renderBoard, 1000, gBoard)
