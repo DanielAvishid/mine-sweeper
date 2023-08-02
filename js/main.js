@@ -3,11 +3,15 @@
 const FLAG = '🚩'
 const MINE = '💣'
 const EMPTY = ''
+const SAFE_CLICK = '✅'
 
 var gBoard
 var gClick
 var gInterval
 var gLivesCount
+var gIsHint
+var gElHintBtn
+var gSafeClicks
 
 var gLevel = {
     SIZE: 4,
@@ -22,9 +26,11 @@ var gGame = {
 }
 
 function onInit() {
+    gIsHint = false
     gGame.isOn = true
     gClick = 0
     gLivesCount = 3
+    gSafeClicks = 0
 
     gBoard = buildBoard()
     renderBoard(gBoard)
@@ -82,7 +88,7 @@ function renderBoard(board) {
     var strHTML = ""
     var numClass
     for (var i = 0; i < board.length; i++) {
-        strHTML += `<tr class="cinema-row" >\n`
+        strHTML += `<tr class="table-row" >\n`
         for (var j = 0; j < board[0].length; j++) {
             const cell = board[i][j]
             var value
@@ -111,8 +117,7 @@ function renderBoard(board) {
 
             // var value = (cell.isMine) ? '💣' : `${cell.minesAroundCount}`
             strHTML += `\t<td data-i="${i}" data-j="${j}"
-                                class="cell ${numClass} ${hiddenCell} ${cellClass}" 
-                                onclick="onCellClicked(this, ${i}, ${j})"
+                                class="cell ${numClass} ${hiddenCell} ${cellClass}" onclick="onCellClicked(this, ${i}, ${j})" 
                                 oncontextmenu="onCellMarked(this)"
                                 >
                                 ${value}
@@ -125,40 +130,49 @@ function renderBoard(board) {
 }
 
 function onCellClicked(elCell, i, j) {
+    if (gIsHint) {
+        revealForSec(gBoard, i, j)
+        setTimeout(renderBoard, 1000, gBoard)
+        gIsHint = false
+        gElHintBtn.style.backgroundColor = 'gray'
+        return
+    }
     if (!gGame.isOn) return
     const currCell = gBoard[i][j]
-    if (gClick === 0) {
+    if (gClick === 0 && !currCell.isMarked) {
         startTime()
-        currCell.isShown = true
+        expandShown(gBoard, i, j)
         renderCell({ i, j }, EMPTY)
-        revealNegs(gBoard, i, j)
         placeRandomMines(gBoard)
         setMinesNegsCount(gBoard)
         renderBoard(gBoard)
         gClick = 1
-    } else {
-        if (currCell.isMarked) return
-        if (currCell.isMine) {
+    }
+    if (currCell.isMarked) return
+    if (currCell.isMine) {
+        if (currCell.isShown) return
+        else {
             gLivesCount--
-            livesModal()
-        }
-        if (currCell.minesAroundCount === 0 && !currCell.isMine && elCell.innerText !== EMPTY) {
-            revealNegs(gBoard, i, j)
-            gLivesCount--
-            livesModal()
-        } else {
             currCell.isShown = true
-        }
-        renderBoard(gBoard)
-        if (gLivesCount === 0) {
-            gameOver()
+            renderCell({ i, j }, MINE)
+            livesModal()
+            if (gLivesCount === 0) {
+                gameOver()
+                return
+            }
+            if (checkGameOver()) victoryModal()
             return
         }
+    } else if (currCell.minesAroundCount === 0) {
+        expandShown(gBoard, i, j)
+    } else {
+        currCell.isShown = true
     }
+    renderBoard(gBoard)
     if (checkGameOver()) victoryModal()
 }
 
-function revealNegs(board, rowIdx, colIdx,) {
+function expandShown(board, rowIdx, colIdx,) {
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= board.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
@@ -167,6 +181,30 @@ function revealNegs(board, rowIdx, colIdx,) {
             currCell.isShown = true
         }
     }
+}
+
+function revealForSec(board, rowIdx, colIdx,) {
+    const boardForSec = []
+    for (var i = 0; i < board.length; i++) {
+        boardForSec[i] = []
+        for (var j = 0; j < board.length; j++) {
+            boardForSec[i][j] = {
+                minesAroundCount: board[i][j].minesAroundCount,
+                isShown: board[i][j].isShown,
+                isMine: board[i][j].isMine,
+                isMarked: board[i][j].isMarked
+            }
+        }
+    }
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= boardForSec.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j >= boardForSec[0].length) continue
+            var currCell = boardForSec[i][j]
+            currCell.isShown = true
+        }
+    }
+    renderBoard(boardForSec)
 }
 
 function onCellMarked(elCell) {
@@ -181,7 +219,6 @@ function onCellMarked(elCell) {
             if (checkGameOver()) victoryModal()
             return
         } else currCell.isMarked = true
-        console.log(currCell.isMarked)
         renderCell(cellPos, FLAG)
     }
     if (checkGameOver()) victoryModal()
@@ -191,20 +228,33 @@ function checkGameOver() {
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
             const cell = gBoard[i][j]
-            if (!cell.isShown && !cell.isMine) return false
-            if (cell.isMine && !cell.isMarked) return false
+            if (cell.isMine && cell.isShown) continue
+            if (cell.isMine && cell.isMarked) continue
+            if (!cell.isMine && cell.isShown) continue
+            return false
         }
     }
     return true
 }
 
-function expandShown(board, elCell, i, j) {
+function markRandomSafeOnClick(elBtn) {
+    if (gSafeClicks === 3) {
+        elBtn.innerText = 'No more Safe Clicks'
+        return
+    }
+    const emptyCells = getEmptyCells(gBoard)
+    const randPos = emptyCells[getRandomIntInclusive(0, emptyCells.length)]
+    renderCell(randPos, SAFE_CLICK)
+    gSafeClicks++
+}
 
+function renderCell2(board, currCell) {
 }
 
 function renderCell(location, value) {
     const cellSelector = '.' + getClassName(location)
     const elCell = document.querySelector(cellSelector)
+    if (gBoard[location.i][location.j].isShown) elCell.classList.remove('hidden-cell')
     elCell.innerHTML = value
 }
 
@@ -250,6 +300,29 @@ function onClickExpert() {
     gLevel.MINES = 32
     onInit()
 }
+
+function onClickDarkMode(elDarkBtn) {
+    const elBody = document.querySelector('body')
+    elBody.classList.toggle('dark-mode')
+
+    if (elDarkBtn.innerText === 'Dark Mode') {
+        elDarkBtn.innerText = 'Disable Dark Mode'
+        return
+
+    } else if (elDarkBtn.innerText === 'Disable Dark Mode') {
+        elDarkBtn.innerText = 'Dark Mode'
+        return
+
+    }
+}
+
+function onClickHint(elHintBtn) {
+    if (elHintBtn.style.backgroundColor === 'gray') return
+    gElHintBtn = elHintBtn
+    elHintBtn.style.backgroundColor = 'yellow'
+    gIsHint = true
+}
+
 
 function victoryModal() {
     gGame.isOn = false

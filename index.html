@@ -22,12 +22,25 @@
     <div>
         <button onclick="onInit()" class="smiley"></button>
     </div>
+    <div class="features">
+        <button class="dark-mode-btn" onclick="onClickDarkMode(this)">Dark Mode</button>
+        <button onclick="onClickHint(this)" class="hint1">💡</button>
+        <button onclick="onClickHint(this)" class="hint2">💡</button>
+        <button onclick="onClickHint(this)" class="hint3">💡</button>
+        <button onclick="markRandomSafeOnClick(this)">Safe Click ✅</button>
+    </div>
     <table class="board">
         <tbody class="board-cells">
         </tbody>
     </table>
     <div class="modal hidden">
         <h3></h3>
+    </div>
+    <div class="records">
+        <br>
+        <br>
+        <br>
+        <a href="records.html" target="_blank">RECORDS</a>
     </div>
     <footer>Daniel Avishid</footer>
     <script src="js/main.js"></script>
