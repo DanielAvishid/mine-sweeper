@@ -10,10 +10,25 @@
 
 <body onload="onInit()">
     <h1>MINE-SWEEPER</h1>
+    <div class="levels">
+        <button onclick="onClickBeginner()">Beginner</button>
+        <button onclick="onClickMedium()">Medium</button>
+        <button onclick="onClickExpert()">Expert</button>
+    </div>
+    <div class="timer"></div>
+    <div class="lives">
+        <h2 class="lives-h2"></h2>
+    </div>
+    <div>
+        <button onclick="onInit()" class="smiley"></button>
+    </div>
     <table class="board">
         <tbody class="board-cells">
         </tbody>
     </table>
+    <div class="modal hidden">
+        <h3></h3>
+    </div>
     <footer>Daniel Avishid</footer>
     <script src="js/main.js"></script>
     <!-- <script src="js/utils.js"></script> -->

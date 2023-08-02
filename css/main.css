@@ -1,6 +1,11 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: black;
     color: white;
+    text-align: center;
 }
 
 h1 {
@@ -11,17 +16,64 @@ h1 {
 
 table {
     margin: auto;
-}
-
-.cell {
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    background-color: gray;
+    margin-top: 40px;
+    border: 4px solid gray;
 }
 
 footer {
     margin: auto;
     margin-top: 40px;
     text-align: center;
+}
+
+.timer {
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    margin: 20px auto;
+}
+
+.levels {
+    margin: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+h3 {
+    margin: auto;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.cell {
+    font-size: 20px;
+    font-family: fantasy;
+    border: solid #808080;
+    border-width: 0 1px 1px 0;
+    width: 35px;
+    height: 35px;
+    text-align: center;
+    background-color: #bdbdbd;
+}
+
+.hidden-cell {
+    border: 4px outset #ececec;
+}
+
+.one {
+    color: blue;
+}
+
+.two {
+    color: green;
+}
+
+.three {
+    color: red;
+}
+
+.four {
+    color: darkblue;
 }
