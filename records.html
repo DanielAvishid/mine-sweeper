@@ -7,12 +7,27 @@
     <title>RECORDS</title>
 </head>
 
-<body>
+<body onload="renderRecords()">
     <h1>RECORDS</h1>
-    <div class="records-beginner"></div>
-    <div class="records-medium"></div>
-    <div class="records-expert"></div>
-
+    <div class="records-beginner">
+        <h1>Beginner records</h1>
+        <p></p>
+    </div>
+    <div class="records-medium">
+        <h1>Medium records</h1>
+        <p></p>
+    </div>
+    <div class="records-expert">
+        <h1>Expert records</h1>
+        <p></p>
+    </div>
+    <script>const elRecordsBeg = document.querySelector('.records-beginner p')
+        elRecordsBeg.innerHTML = `${localStorage.getItem("best-score-beginner")} ${localStorage.getItem("best-score-beginner-name")}`
+        const elRecordsMed = document.querySelector('.records-medium p')
+        elRecordsMed.innerHTML = `${localStorage.getItem("best-score-medium")} ${localStorage.getItem("best-score-medium-name")}`
+        const elRecordsExp = document.querySelector('.records-expert p')
+        elRecordsExp.innerHTML = `${localStorage.getItem("best-score-expert")} ${localStorage.getItem("best-score-expert-name")}`</script>
+    <script src="js/utils.js"></script>
 </body>
 
 </html>

@@ -15,22 +15,26 @@
         <button onclick="onClickMedium()">Medium</button>
         <button onclick="onClickExpert()">Expert</button>
     </div>
-    <div class="timer"></div>
     <div class="lives">
         <h2 class="lives-h2"></h2>
     </div>
     <div>
+        <div class="timer">
+        </div>
         <button onclick="onInit()" class="smiley"></button>
     </div>
     <div class="features">
         <button class="dark-mode-btn" onclick="onClickDarkMode(this)">Dark Mode</button>
-        <button onclick="onClickHint(this)" class="hint1">💡</button>
-        <button onclick="onClickHint(this)" class="hint2">💡</button>
-        <button onclick="onClickHint(this)" class="hint3">💡</button>
-        <button onclick="markRandomSafeOnClick(this)">Safe Click ✅</button>
+        <button onclick="onClickHint(this)" class="hint hint1">💡</button>
+        <button onclick="onClickHint(this)" class="hint hint2">💡</button>
+        <button onclick="onClickHint(this)" class="hint hint3">💡</button>
+        <button class="safe-click" onclick="onClickSafe(this)">Safe Click ✅</button>
     </div>
     <div class="features-two">
+        <button onclick="manualOnClick()">Manually create</button>
+        <button>Mega Hint</button>
         <button onclick="undoOnClick()">Undo</button>
+        <button onclick="onClickExterminator()">Exterminator</button>
     </div>
     <table class="board">
         <tbody class="board-cells">
@@ -45,9 +49,9 @@
         <br>
         <a href="records.html" target="_blank">RECORDS</a>
     </div>
-    <footer>Daniel Avishid</footer>
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
-    <!-- <script src="js/utils.js"></script> -->
+    <footer>Daniel Avishid</footer>
 </body>
 
 </html>
