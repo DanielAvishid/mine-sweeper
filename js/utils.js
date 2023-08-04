@@ -16,14 +16,7 @@ function getEmptyCells(board) {
   return emptyCells;
 }
 
-function placeRandomMines(board) {
-  for (var i = 0; i < gLevel.MINES; i++) {
-    var emptyCells = getEmptyCells(board)
-    var ranPosCell = emptyCells[getRandomIntInclusive(0, emptyCells.length - 1)]
-    if (!ranPosCell.isMine) board[ranPosCell.i][ranPosCell.j].isMine = true
-  }
-}
-
+// ** DOM
 function getClassName(location) {
   const cellClass = 'cell-' + location.i + '-' + location.j
   return cellClass
@@ -39,6 +32,10 @@ function startTime() {
 }
 
 function resetGVariables() {
+  gIsManualM = false
+  gManualMinesCount = 0
+  gGame.markedCount = 0
+  gGame.shownCount = 0
   gManualMinesCount = 0
   gManual = false
   gStepUndoCounter = 0
@@ -87,13 +84,4 @@ function shakeScreen() {
     elBody.style.animation = ''
     elBody.style.animationIterationCount = ''
   }, 500);
-}
-
-function renderRecords() {
-  const elRecordsBeg = document.querySelector('.records-beginner p')
-  elRecordsBeg.innerHTML = `${localStorage.getItem("best-score-beginner")} ${localStorage.getItem("best-score-beginner-name")}`
-  const elRecordsMed = document.querySelector('.records-medium p')
-  elRecordsMed.innerHTML = `${localStorage.getItem("best-score-medium")} ${localStorage.getItem("best-score-medium-name")}`
-  const elRecordsExp = document.querySelector('.records-expert p')
-  elRecordsExp.innerHTML = `${localStorage.getItem("best-score-expert")} ${localStorage.getItem("best-score-expert-name")}`
 }

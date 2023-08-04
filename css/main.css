@@ -151,3 +151,11 @@ h3 {
 .four {
     color: darkblue;
 }
+
+.smiley {
+    font-size: 20px;
+}
+
+.shown-and-mark {
+    margin-bottom: 20px;
+}
