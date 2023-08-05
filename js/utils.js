@@ -32,6 +32,7 @@ function startTime() {
 }
 
 function resetGVariables() {
+  gMegaIsFinish = false
   gIsManualM = false
   gManualMinesCount = 0
   gGame.markedCount = 0
@@ -57,9 +58,9 @@ function resetHintButtons() {
 }
 
 function createUndoState(board) {
-  var undoStepBoard = [];
+  var undoStepBoard = []
   for (var i = 0; i < gLevel.SIZE; i++) {
-    undoStepBoard[i] = [];
+    undoStepBoard[i] = []
     for (var j = 0; j < gLevel.SIZE; j++) {
       undoStepBoard[i][j] = {
         minesAroundCount: board[i][j].minesAroundCount,
@@ -71,9 +72,8 @@ function createUndoState(board) {
   }
   gUndoLives.push(gLives)
   gUndoState.push(undoStepBoard)
-  gStepUndoCounter++
-  gLivesCounter++
-  return undoStepBoard
+  gUndoShownCount.push(gGame.shownCount)
+  gUndoMarkedCount.push(gGame.markedCount)
 }
 
 function shakeScreen() {
@@ -85,3 +85,56 @@ function shakeScreen() {
     elBody.style.animationIterationCount = ''
   }, 500);
 }
+
+function revealCell(board, rowIdx, colIdx) {
+  // Check if the cell is valid and not already revealed
+  if (
+    rowIdx < 0 ||
+    colIdx < 0 ||
+    rowIdx >= board.length ||
+    colIdx >= board[0].length ||
+    board[rowIdx][colIdx].isShown
+  ) {
+    return;
+  }
+
+  // Mark the cell as revealed
+  board[rowIdx][colIdx].isShown = true;
+
+  // If the cell contains a mine, return (no need to reveal further)
+  if (board[rowIdx][colIdx].isMine) {
+    return;
+  }
+
+  // If the cell is not a mine and has no neighboring mines, reveal its neighbors
+  if (countNeighboringMines(board, rowIdx, colIdx) === 0) {
+    // Recursive calls to reveal all neighbors
+    revealCell(board, rowIdx - 1, colIdx - 1)
+    revealCell(board, rowIdx - 1, colIdx)
+    revealCell(board, rowIdx - 1, colIdx + 1)
+    revealCell(board, rowIdx, colIdx - 1)
+    revealCell(board, rowIdx, colIdx + 1)
+    revealCell(board, rowIdx + 1, colIdx - 1)
+    revealCell(board, rowIdx + 1, colIdx)
+    revealCell(board, rowIdx + 1, colIdx + 1)
+  }
+}
+
+function countNeighboringMines(board, rowIdx, colIdx) {
+  var count = 0;
+  for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+    for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+      if (i >= 0 && i < board.length && j >= 0 && j < board[0].length) {
+        if (board[i][j].isMine) {
+          count++;
+        }
+      }
+    }
+  }
+  return count;
+}
+
+
+
+
+

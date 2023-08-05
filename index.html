@@ -9,23 +9,24 @@
 </head>
 
 <body onload="onInit()">
-    <h1>MINE-SWEEPER</h1>
+    <h1 class="main-h1">MINE-SWEEPER</h1>
     <div class="levels">
-        <button onclick="onClickBeginner()">Beginner</button>
-        <button onclick="onClickMedium()">Medium</button>
-        <button onclick="onClickExpert()">Expert</button>
+        <button class="select-mode" onclick="onClickBeginner()">Beginner</button>
+        <button class="select-mode" onclick="onClickMedium()">Medium</button>
+        <button class="select-mode" onclick="onClickExpert()">Expert</button>
     </div>
     <div class="lives">
         <h2 class="lives-h2"></h2>
     </div>
-    <div>
+    <div class="timer-and-smiley">
+        <button onclick="onInit()" class="smiley"></button>
         <div class="timer">
         </div>
-        <div class="shown-and-mark">
-            <span class="shown"></span>
-            <span class="mark"></span>
-        </div>
-        <button onclick="onInit()" class="smiley"></button>
+    </div>
+    <div class="shown-and-mark">
+        <span class="shown"></span>
+        <span class="mark"></span>
+    </div>
     </div>
     <div class="features">
         <button class="dark-mode-btn" onclick="onClickDarkMode(this)">Dark Mode</button>
@@ -35,10 +36,10 @@
         <button class="safe-click" onclick="onClickSafe(this)">Safe Click ✅</button>
     </div>
     <div class="features-two">
-        <button onclick="onClickManual()">Manually create</button>
-        <button>Mega Hint</button>
-        <button onclick="undoOnClick()">Undo</button>
-        <button onclick="onClickExterminator()">Exterminator</button>
+        <button class="manual-click" onclick="onClickManual()">Manually create</button>
+        <button class="mega-hint-click" onclick="onClickMegaHint()">Mega Hint</button>
+        <button class="undo-click" onclick="onClickUndo()">Undo</button>
+        <button class="exterminator-click" onclick="onClickExterminator()">Exterminator</button>
     </div>
     <table class="board">
         <tbody class="board-cells">

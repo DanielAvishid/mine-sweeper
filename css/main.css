@@ -49,6 +49,35 @@
     }
 }
 
+.dark-mode-h1 {
+    color: transparent;
+    -webkit-text-stroke: 1px #fff;
+    background: url(../img/back.png);
+    -webkit-background-clip: text;
+    background-position: 0 0;
+    animation: back 20s linear infinite;
+}
+
+.main-h1 {
+    margin-bottom: 15px;
+    font-size: 70px;
+}
+
+@keyframes back {
+    100% {
+        background-position: 2000px 0;
+    }
+}
+
+.select-mode {
+    margin-left: 10px;
+    font-size: 18px;
+    max-width: 200px;
+    min-height: 30px;
+    width: 10vw;
+    border: 4px outset #ececec;
+}
+
 body {
     background-color: white;
     color: black;
@@ -73,6 +102,7 @@ h2 {
     color: #5edc4a;
     font-family: fantasy;
     padding: 10px;
+    margin-bottom: 20px;
 }
 
 table {
@@ -88,10 +118,23 @@ footer {
 }
 
 .timer {
+    color: red;
+    background-color: black;
+    margin-left: 20px;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-bottom: 7px;
+    padding-top: 6px;
+    border: 4px outset #ececec;
+    display: unset;
     font-size: 20px;
     font-family: 'Roboto', sans-serif;
     text-align: center;
-    margin: 20px auto;
+    /* margin: 20px auto; */
+}
+
+.timer-and-smiley {
+    margin-bottom: 10px;
 }
 
 .levels {
@@ -153,9 +196,53 @@ h3 {
 }
 
 .smiley {
+    border: 4px outset #ececec;
     font-size: 20px;
+    margin-right: 20px;
+    padding-bottom: 5px;
 }
 
 .shown-and-mark {
+    margin-top: 20px;
     margin-bottom: 20px;
+}
+
+.shown {
+    margin-right: 20px;
+}
+
+.mark {
+    margin-left: 20px;
+}
+
+.shown-and-mark span {
+    font-size: 20px;
+    font-family: fantasy;
+}
+
+.dark-mode-btn {
+    border: 4px outset #ececec;
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.hint {
+    font-size: 15px;
+    padding: 5px 10px;
+}
+
+.hint3,
+.manual-click,
+.mega-hint-click,
+.undo-click {
+    margin-right: 10px;
+}
+
+.safe-click,
+.manual-click,
+.mega-hint-click,
+.undo-click,
+.exterminator-click {
+    border: 4px outset #ececec;
+    font-size: 18px;
 }

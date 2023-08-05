@@ -22,9 +22,22 @@ var gSafeClicks
 var gElHintBtn
 var gManualMinesCount
 
+var gMegaIsActive = false
+var gMegaIsFirst
+var gMegaIsLast
+var gMegaLastCell
+var gMegaFirstCell
+var gMegaIsFinish
+
+var gMegaFirstCell
+var gMegaLastCell
+
+
 var gStepUndoCounter
 var gUndoState = []
 var gUndoLives = []
+var gUndoShownCount = []
+var gUndoMarkedCount = []
 
 var gIntervalSafeClick
 var gIntervalTime
@@ -42,6 +55,10 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0
 }
+
+// localStorage.setItem("expert-score", 200)
+// localStorage.setItem("medium-score", 200)
+// localStorage.setItem("beginner-score", 200)
 
 ////////////////////////////////////////////////
 // Flow Functions ------------------------------------------------------
@@ -142,11 +159,28 @@ function renderBoard(board) {
 function onCellClicked(elCell, i, j) {
     clearInterval(gIntervalSafeClick)
     const currCell = gBoard[i][j]
-    if (!gGame.isOn) return
-    if (currCell.isMarked) return
+    if (!gGame.isOn || currCell.isMarked || currCell.isShown && !gIsManualM) return
     if (!gIsManualM && gClicks === 999) {
         gClicks++
         startTime()
+    }
+    if (gMegaIsActive) {
+        if (gMegaIsFirst) {
+            gMegaFirstCell = elCell
+            gMegaIsFirst = false
+            gMegaIsLast = true
+            return
+        } else if (gMegaIsLast) {
+            gMegaLastCell = elCell
+            const MegaHintCells = getMegaHintAreaReveal(gBoard, gMegaFirstCell, gMegaLastCell)
+            gMegaIsActive = false
+            setTimeout(() => {
+                revealBackMegaHint(MegaHintCells)
+                renderBoard(gBoard)
+            }, 2000);
+            gMegaIsFinish = true
+            return
+        }
     }
     if (gIsManualM) {
         if (currCell.isMine) return
@@ -163,14 +197,12 @@ function onCellClicked(elCell, i, j) {
         }
         return
     }
-    // if (gStepUndoCounter === 0) onInit()
-
     createUndoState(gBoard)
-
     if (gClicks === 0 && !currCell.isMarked || gIsUndoFirstStep) {
+        onInit()
         startTime()
         currCell.isShown = true
-        gGame.shownCount++
+        // gGame.shownCount++
         renderCell({ i, j }, EMPTY)
         expandShownOneGen(gBoard, i, j)
         placeRandomMines(gBoard)
@@ -178,6 +210,7 @@ function onCellClicked(elCell, i, j) {
         renderBoard(gBoard)
         shownAndMarkModal()
         gClicks = 2
+        gIsUndoFirstStep = false
         return
     }
 
@@ -205,7 +238,7 @@ function onCellClicked(elCell, i, j) {
         }
     }
     if (currCell.minesAroundCount === 0) {
-        expandShownOneGen(gBoard, i, j)
+        revealCell(gBoard, i, j)
         shownAndMarkModal()
     } else if (currCell.minesAroundCount !== 0) {
         if (currCell.isShown) return
@@ -270,7 +303,7 @@ function expandShown(board, elCell1, rowIdx, colIdx) {
 }
 
 // expandShown 1st generation
-function expandShownOneGen(board, rowIdx, colIdx,) {
+function expandShownOneGen(board, rowIdx, colIdx) {
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= board.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
@@ -409,30 +442,30 @@ function victoryModal() {
     elBtn.innerText = '😎'
     clearInterval(gIntervalTime)
     if (gLevel.SIZE === 4) {
-        if (gGame.secsPassed < +localStorage.getItem("best-score-beginner")) {
+        if (gGame.secsPassed < +localStorage.getItem("beginner-score")) {
             alert('You broke the Beginner Level RECORD!')
             setTimeout(() => {
-                localStorage.setItem("best-score-beginner", gGame.secsPassed)
+                localStorage.setItem("beginner-score", gGame.secsPassed)
                 const userName = prompt('Enter your name:')
-                localStorage.setItem("best-score-beginner-name", userName)
+                localStorage.setItem("beginner-name", userName)
             }, 1000)
         }
     } else if (gLevel.SIZE === 8) {
-        if (gGame.secsPassed < +localStorage.getItem("best-score-medium")) {
+        if (gGame.secsPassed < +localStorage.getItem("medium-score")) {
             alert('You broke the Medium Level RECORD!')
             setTimeout(() => {
-                localStorage.setItem("best-score-medium", gGame.secsPassed)
+                localStorage.setItem("medium-score", gGame.secsPassed)
                 const userName = prompt('Enter your name:')
-                localStorage.setItem("best-score-medium-name", userName)
+                localStorage.setItem("medium-name", userName)
             }, 1000)
         }
     } else if (gLevel.SIZE === 12) {
-        if (gGame.secsPassed < +localStorage.getItem("best-score-expert")) {
+        if (gGame.secsPassed < +localStorage.getItem("expert-score")) {
             alert('You broke the Expert Level RECORD!')
             setTimeout(() => {
-                localStorage.setItem("best-score-expert", gGame.secsPassed)
+                localStorage.setItem("expert-score", gGame.secsPassed)
                 const userName = prompt('Enter your name:')
-                localStorage.setItem("best-score-expert-name", userName)
+                localStorage.setItem("expert-name", userName)
             }, 1000)
         }
     }
@@ -463,9 +496,16 @@ function onClickMedium() {
     onInit()
 }
 
+// onClick btn to set gLevel Expert
+function onClickExpert() {
+    gLevel.SIZE = 12
+    gLevel.MINES = 32
+    onInit()
+}
+
 // onClickSafe change btn text and use markSafeClick()
 function onClickSafe(elBtn) {
-    if (gClicks === 0 || gSafeClicks === 0) return
+    if (gClicks === 0 || gSafeClicks === 0 || !gGame.isOn) return
     if (gSafeClicks === 3) {
         elBtn.innerText = `Safe Click ✅ ${gSafeClicks - 1} available`
         markSafeClick()
@@ -483,24 +523,20 @@ function onClickSafe(elBtn) {
     }
 }
 
-// onClick btn to set gLevel Expert
-function onClickExpert() {
-    gLevel.SIZE = 12
-    gLevel.MINES = 32
-    onInit()
-}
-
 // onClick DarkMode option
 function onClickDarkMode(elDarkBtn) {
     const elBody = document.querySelector('body')
     elBody.classList.toggle('dark-mode')
+    const elH1Main = document.querySelector('.main-h1')
 
     if (elDarkBtn.innerText === 'Dark Mode') {
         elDarkBtn.innerText = 'Disable Dark Mode'
+        elH1Main.classList.add('dark-mode-h1')
         return
 
     } else if (elDarkBtn.innerText === 'Disable Dark Mode') {
         elDarkBtn.innerText = 'Dark Mode'
+        elH1Main.classList.remove('dark-mode-h1')
         return
 
     }
@@ -530,19 +566,48 @@ function onClickManual() {
     gIsManualM = true
 }
 
-// onClick undo, make the game go to last Step saved (ATM - Lives, Board)
+// onClick undo, make the game go to last Step saved (ATM - Lives, Board, gGame.Shown&Marked)
 function onClickUndo(elBtn) {
-    if (!gGame.isOn) return
-    console.log(gUndoState)
-    gBoard = gUndoState[gStepUndoCounter - 1]
-    gLives = gUndoLives[gLivesCounter - 1]
-    if (!gLives) gLives = gLivesCounter
+    if (!gGame.isOn || gIsUndoFirstStep) return
+    gBoard = gUndoState[gUndoState.length - 1]
+    gLives = gUndoLives[gUndoLives.length - 1]
+    gGame.shownCount = gUndoShownCount[gUndoShownCount.length - 1]
+    gGame.markedCount = gUndoMarkedCount[gUndoMarkedCount.length - 1]
+
     livesModal()
-    renderBoard(gUndoState[gStepUndoCounter - 1])
-    gUndoState.splice(gStepUndoCounter - 1, 1)
-    gUndoLives.splice(gLivesCounter - 1, 1)
-    gStepUndoCounter--
-    gLivesCounter--
+    renderBoard(gUndoState[gUndoState.length - 1])
+    shownAndMarkModal()
+
+    gUndoMarkedCount.splice(gUndoMarkedCount.length - 1, 1)
+    gUndoShownCount.splice(gUndoShownCount.length - 1, 1)
+    gUndoState.splice(gUndoState.length - 1, 1)
+    gUndoLives.splice(gUndoLives.length - 1, 1)
+    if (isNotShown(gBoard)) gIsUndoFirstStep = true
+}
+
+function onClickMegaHint(elBtn) {
+    if (gMegaIsFinish) return
+    gMegaIsFirst = true
+    gMegaIsActive = true
+}
+
+// Reveal megaHint Mode selected Area
+function getMegaHintAreaReveal(board, firstCell, lastCell) {
+    const MegaHintCells = []
+    for (var i = firstCell.dataset.i; i <= lastCell.dataset.i; i++) {
+        for (var j = firstCell.dataset.j; j <= lastCell.dataset.j; j++) {
+            board[i][j].isShown = true
+            MegaHintCells.push(board[i][j])
+        }
+    }
+    renderBoard(board)
+    return MegaHintCells
+}
+
+function revealBackMegaHint(MegaHintCells) {
+    for (var i = 0; i < MegaHintCells.length; i++) {
+        MegaHintCells[i].isShown = false
+    }
 }
 
 ////////////////////////////////////////////////////////
@@ -589,12 +654,22 @@ function renderRecords() {
     var elMedium = document.querySelector('.medium')
     var elExpert = document.querySelector('.expert')
 
-    var userName = (!localStorage.getItem("best-score-beginner-name")) ? 'Unknown' : localStorage.getItem("best-score-beginner-name")
-    elBeginner.innerText = `Best Score: ${localStorage.getItem("best-score-beginner")} Name: ${userName}`
+    var userName = (!localStorage.getItem("beginner-name")) ? 'Unknown' : localStorage.getItem("beginner-name")
+    elBeginner.innerText = `Best Score: ${localStorage.getItem("beginner-score")} Name: ${userName}`
 
-    userName = (!localStorage.getItem("best-score-medium-name")) ? 'Unknown' : localStorage.getItem("best-score-medium-name")
-    elMedium.innerText = `Best Score: ${localStorage.getItem("best-score-medium")} Name: ${userName}`
+    userName = (!localStorage.getItem("medium-name")) ? 'Unknown' : localStorage.getItem("medium-name")
+    elMedium.innerText = `Best Score: ${localStorage.getItem("medium-score")} Name: ${userName}`
 
-    userName = (!localStorage.getItem("best-score-expert-name")) ? 'Unknown' : localStorage.getItem("best-score-expert-name")
-    elExpert.innerText = `Best Score: ${localStorage.getItem("best-score-expert")} Name: ${userName}`
+    userName = (!localStorage.getItem("expert-name")) ? 'Unknown' : localStorage.getItem("expert-name")
+    elExpert.innerText = `Best Score: ${localStorage.getItem("expert-score")} Name: ${userName}`
+}
+
+function isNotShown(board) {
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++) {
+            const cell = board[i][j]
+            if (cell.isShown) return false
+        }
+    }
+    return true
 }
