@@ -52,7 +52,16 @@
 .dark-mode-h1 {
     color: transparent;
     -webkit-text-stroke: 1px #fff;
-    background: url(../img/back.png);
+    background: url(../img/back_white.png);
+    -webkit-background-clip: text;
+    background-position: 0 0;
+    animation: back 20s linear infinite;
+}
+
+.no-dark-mode {
+    color: transparent;
+    -webkit-text-stroke: 1px #000;
+    background: url(../img/back_black.png);
     -webkit-background-clip: text;
     background-position: 0 0;
     animation: back 20s linear infinite;
@@ -61,6 +70,7 @@
 .main-h1 {
     margin-bottom: 15px;
     font-size: 70px;
+
 }
 
 @keyframes back {
@@ -70,6 +80,7 @@
 }
 
 .select-mode {
+    min-width: 100px;
     margin-left: 10px;
     font-size: 18px;
     max-width: 200px;
@@ -96,10 +107,11 @@ h1 {
 }
 
 h2 {
-    border-width: 2px 0px 2px 0px;
+    border-width: 4px 0px 4px 0px;
     border-style: dashed;
     border-color: #5edc4a;
     color: #5edc4a;
+    font-size: 30px;
     font-family: fantasy;
     padding: 10px;
     margin-bottom: 20px;
@@ -131,6 +143,10 @@ footer {
     font-family: 'Roboto', sans-serif;
     text-align: center;
     /* margin: 20px auto; */
+}
+
+.timer-span {
+    font-family: fantasy;
 }
 
 .timer-and-smiley {
